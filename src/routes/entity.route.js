@@ -1,12 +1,5 @@
 import express from 'express';
-import {
-  createEntityController,
-  searchEntitiesController,
-  getEntityPublicController,
-  getEntityPrivateController,
-  updateEntityController
-} from '../controllers/entity.controller.js';
-
+import { createEntityController, searchEntitiesController, getEntityPublicController, getEntityPrivateController, updateEntityController } from '../controllers/entity.controller.js';
 import { auth } from '../middlewares/auth.js';
 
 const router = express.Router();

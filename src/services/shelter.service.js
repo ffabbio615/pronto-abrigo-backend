@@ -2,13 +2,14 @@ import db from '../database/db.js';
 
 export const createShelter = async (data) => {
   const query = `
-    INSERT INTO shelters (name, address, email, password, type, capacity)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO shelters (name, description, address, email, password, type, capacity)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `;
 
   const values = [
     data.name,
+    data.description,
     data.address,
     data.email,
     data.password,

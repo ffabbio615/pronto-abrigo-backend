@@ -4,7 +4,7 @@ import { createShelter, findShelterByEmail, getAllShelters, getShelterById, upda
 
 export const registerShelter = async (req, res) => {
   try {
-    const { name, address, email, password, type, capacity } = req.body;
+    const { name, description, address, email, password, type, capacity } = req.body;
 
     // Verifica se já existe
     const existing = await findShelterByEmail(email);
@@ -17,6 +17,7 @@ export const registerShelter = async (req, res) => {
 
     const shelter = await createShelter({
       name,
+      description,
       address,
       email,
       password: hashedPassword,
@@ -110,19 +111,19 @@ export const updateShelterController = async (req, res) => {
       return res.status(404).json({ error: 'Abrigo não encontrado' });
     }
 
-    // 🔒 Regra: capacity não pode ser menor que ocupação atual
+    // Capacity não pode ser menor que ocupação atual
     if (data.capacity && data.capacity < shelter.current_occupancy) {
       return res.status(400).json({
         error: 'Capacidade não pode ser menor que ocupação atual'
       });
     }
 
-    // 🔐 Hash de senha (se vier)
+    // Hash de senha (se vier)
     if (data.password) {
       data.password = await bcrypt.hash(data.password, 10);
     }
 
-    // ⚠️ Status FULL não pode ser setado manualmente
+    // Status FULL não pode ser setado manualmente
     if (data.status === 'full') {
       return res.status(400).json({
         error: 'Status "full" é automático'
