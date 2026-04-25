@@ -4,7 +4,7 @@ import { createShelter, findShelterByEmail, getAllShelters, getShelterById, upda
 
 export const registerShelter = async (req, res) => {
   try {
-    const { name, description, address, email, password, type, capacity } = req.body;
+    const { name, nickname, description, address, email, password, type, capacity } = req.body;
 
     // Verifica se já existe
     const existing = await findShelterByEmail(email);
@@ -17,6 +17,7 @@ export const registerShelter = async (req, res) => {
 
     const shelter = await createShelter({
       name,
+      nickname,
       description,
       address,
       email,
