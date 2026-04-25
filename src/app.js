@@ -3,13 +3,11 @@ import shelterRoutes from './routes/shelter.route.js';
 import supplyRoutes from './routes/supply.route.js';
 import donationRoutes from './routes/donation.route.js';
 import entityRoutes from './routes/entity.route.js';
+import cors from 'cors';
 
 const app = express();
 app.use(express.json());
-
-// app.get("/", (req, res)=>{
-//     res.send("<h1>Rodando!</h1>");
-// });
+app.use(cors());
 
 app.use('/shelters', shelterRoutes);
 app.use('/supplies', supplyRoutes);
