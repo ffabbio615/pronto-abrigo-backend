@@ -55,7 +55,15 @@ export const loginShelter = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    res.json({ token });
+    res.json({ 
+      token,
+      user: {
+        id: shelter.id,
+        name: shelter.name,
+        nickname: shelter.nickname,
+        email: shelter.email
+      }
+     });
 
   } catch (err) {
     res.status(500).json({ error: 'Erro no login' });
