@@ -21,7 +21,13 @@ export const registerShelterSchema = Joi.object({
 
   type: Joi.string().valid('human', 'animal').required(),
 
-  capacity: Joi.number().integer().min(1).required()
+  capacity: Joi.number().integer().min(1).required(),
+
+  latitude: Joi.number().required(),
+
+  longitude: Joi.number().required(),
+
+  photo_url: Joi.string().uri().allow(null, '')
 });
 
 export const updateShelterSchema = Joi.object({
