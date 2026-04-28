@@ -2,9 +2,12 @@ import express from 'express';
 import { auth } from '../middlewares/auth.js';
 import { validate } from '../middlewares/validate.js';
 import { createSupplySchema } from '../validators/supplyValidator.js';
-import { createSupplyController, getSuppliesController, updateSupplyController, deleteSupplyController } from '../controllers/supply.controller.js';
+import { createSupplyController, getSuppliesController, getNearbySuppliesController, updateSupplyController, deleteSupplyController } from '../controllers/supply.controller.js';
 
 const router = express.Router();
+
+//Rota pública para obter os suprimentos próximos
+router.get('/nearby', getNearbySuppliesController);
 
 router.post('/', auth, validate(createSupplySchema), createSupplyController);
 router.get('/', auth, getSuppliesController);
