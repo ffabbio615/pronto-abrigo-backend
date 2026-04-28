@@ -23,6 +23,57 @@ export const getSupplies = async (shelterId) => {
   return result.rows;
 };
 
+export const getNearbySuppliesService = async (lat, lng, radius) => {
+  const result = await db.query(
+    `
+    SELECT 
+      s.name,
+      s.current_quantity,
+      s.min_quantity,
+      sh.name as shelter_name,
+      sh.id as shelter_id,
+
+      (
+        6371 * acos(
+          cos(radians($1)) *
+          cos(radians(sh.latitude)) *
+          cos(radians(sh.longitude) - radians($2)) +
+          sin(radians($1)) *
+          sin(radians(sh.latitude))
+        )
+      ) AS distance
+
+    FROM supplies s
+    JOIN shelters sh ON sh.id = s.shelter_id
+
+    WHERE s.current_quantity < s.min_quantity
+    HAVING distance <= $3
+    ORDER BY distance ASC
+    `,
+    [lat, lng, radius]
+  );
+
+  const grouped = {};
+
+  for (const item of result.rows) {
+    if (!grouped[item.shelter_id]) {
+      grouped[item.shelter_id] = {
+        shelter: item.shelter_name,
+        distance: item.distance,
+        items: []
+      };
+    }
+
+    grouped[item.shelter_id].items.push({
+      name: item.name,
+      current: item.current_quantity,
+      needed: item.min_quantity
+    });
+  }
+
+  return Object.values(grouped);
+};
+
 export const updateSupply = async (id, data, shelterId) => {
   // 1. Buscar supply atual
   const result = await db.query(

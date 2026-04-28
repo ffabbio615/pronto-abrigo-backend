@@ -1,4 +1,4 @@
-import { createSupply, getSupplies, updateSupply, deleteSupply } from '../services/supply.service.js';
+import { createSupply, getSupplies, getNearbySuppliesService, updateSupply, deleteSupply } from '../services/supply.service.js';
 
 // Cria um supply (suprimento) e define as quantidades necessárias para evitar desperdícios.
 export const createSupplyController = async (req, res) => {
@@ -34,6 +34,33 @@ export const getSuppliesController = async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ error: 'Erro ao buscar supplies' });
+  }
+};
+
+
+export const getNearbySuppliesController = async (req, res) => {
+  const { lat, lng, radius = 10 } = req.query;
+
+  if (!lat || !lng) {
+    return res.status(400).json({
+      error: "Latitude e longitude são obrigatórias"
+    });
+  }
+
+  try {
+    const supplies = await getNearbySuppliesService(
+      Number(lat),
+      Number(lng),
+      Number(radius)
+    );
+
+    return res.status(200).json(supplies);
+
+  } catch (error) {
+    console.error("Erro ao buscar mantimentos:", error);
+    return res.status(500).json({
+      error: "Erro ao buscar mantimentos"
+    });
   }
 };
 
