@@ -30,10 +30,6 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
       s.name,
       s.current_quantity,
       s.min_quantity,
-<<<<<<< HEAD
-
-=======
->>>>>>> 9802b41cac14a855a498c1134ac4bc5b71b8c887
       sh.name as shelter_name,
       sh.id as shelter_id,
 
@@ -50,7 +46,6 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
     FROM supplies s
     JOIN shelters sh ON sh.id = s.shelter_id
 
-<<<<<<< HEAD
     WHERE 
       s.current_quantity < s.min_quantity
       AND (
@@ -63,10 +58,6 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
         )
       ) <= $3
 
-=======
-    WHERE s.current_quantity < s.min_quantity
-    HAVING distance <= $3
->>>>>>> 9802b41cac14a855a498c1134ac4bc5b71b8c887
     ORDER BY distance ASC
     `,
     [lat, lng, radius]
