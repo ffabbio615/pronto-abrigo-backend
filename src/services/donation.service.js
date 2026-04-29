@@ -88,7 +88,7 @@ export const getActiveReservations = async (shelterId) => {
     `
     SELECT 
       dr.*,
-      s.name AS supply_name
+      s.name AS item_name
     FROM donation_reservations dr
     JOIN supplies s ON s.id = dr.supply_id
     WHERE s.shelter_id = $1
