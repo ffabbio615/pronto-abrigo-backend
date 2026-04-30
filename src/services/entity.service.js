@@ -87,7 +87,21 @@ export const getEntityPublicById = async (id) => {
 };
 
 
-// Esse é o GET que o abrigo recebe quando está logado, exibindo todos os dados das pessoas que estão abrigadas nele.
+// Esses são o GETS que o abrigo recebe quando está logado, exibindo todos os dados das pessoas que estão abrigadas nele.
+export const getEntitiesByShelter = async (shelterId) => {
+  const result = await db.query(
+    `
+    SELECT *
+    FROM registered_entities
+    WHERE shelter_id = $1
+    ORDER BY created_at DESC
+    `,
+    [shelterId]
+  );
+
+  return result.rows;
+};
+
 export const getEntityPrivateById = async (id, shelterId) => {
   const result = await db.query(
     `

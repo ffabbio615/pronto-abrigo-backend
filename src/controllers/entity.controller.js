@@ -1,4 +1,4 @@
-import { createEntity, searchEntitiesPublic, getEntityPublicById, getEntityPrivateById, updateEntity } from '../services/entity.service.js';
+import { createEntity, searchEntitiesPublic, getEntityPublicById, getEntitiesByShelter, getEntityPrivateById, updateEntity } from '../services/entity.service.js';
 
 
 // CREATE (pessoa ou animal inserido(a) no abrigo)
@@ -48,6 +48,18 @@ export const getEntityPublicController = async (req, res) => {
 
 
 // GET BY ID (privado - completo)
+export const getEntitiesByShelterController = async (req, res) => {
+  try {
+    const shelterId = req.user.id;
+
+    const data = await getEntitiesByShelter(shelterId);
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao buscar entidades' });
+  }
+};
+
 export const getEntityPrivateController = async (req, res) => {
   try {
     const { id } = req.params;
