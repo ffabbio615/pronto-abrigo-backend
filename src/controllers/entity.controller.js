@@ -1,34 +1,41 @@
-import { createEntity, searchEntitiesPublic, getEntityPublicById, getEntitiesByShelter, getEntityPrivateById, updateEntity } from '../services/entity.service.js';
+import {
+  createEntity,
+  searchEntitiesPublic,
+  getEntityPublicById,
+  getEntitiesByShelter,
+  getEntityPrivateById,
+  updateEntity
+} from '../services/entity.service.js';
 
-
-// CREATE (pessoa ou animal inserido(a) no abrigo)
+/**
+ * CREATE
+ */
 export const createEntityController = async (req, res) => {
   try {
     const entity = await createEntity(req.body, req.user.id);
-
-    res.status(201).json(entity);
-
+    return res.status(201).json(entity);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Erro ao criar registro' });
+    return res.status(500).json({ error: 'Erro ao criar registro' });
   }
 };
 
-
-// GET LIST (público com filtros)
+/**
+ * PUBLIC SEARCH
+ */
 export const searchEntitiesController = async (req, res) => {
   try {
-    const entities = await searchEntitiesPublic(req.query);
-
-    res.json(entities);
-
+    const entities = await searchEntitiesPublic(req.query || {});
+    return res.json(entities);
   } catch (err) {
-    res.status(500).json({ error: 'Erro ao buscar registros' });
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao buscar registros' });
   }
 };
 
-
-// GET BY ID (público - limitado LGPD)
+/**
+ * PUBLIC BY ID
+ */
 export const getEntityPublicController = async (req, res) => {
   try {
     const { id } = req.params;
@@ -39,27 +46,29 @@ export const getEntityPublicController = async (req, res) => {
       return res.status(404).json({ error: 'Registro não encontrado' });
     }
 
-    res.json(entity);
-
+    return res.json(entity);
   } catch (err) {
-    res.status(500).json({ error: 'Erro ao buscar registro' });
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao buscar registro' });
   }
 };
 
-
-// GET BY ID (privado - completo)
+/**
+ * SHELTER LIST
+ */
 export const getEntitiesByShelterController = async (req, res) => {
   try {
-    const shelterId = req.user.id;
-
-    const data = await getEntitiesByShelter(shelterId);
-
-    res.json(data);
+    const data = await getEntitiesByShelter(req.user.id);
+    return res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Erro ao buscar entidades' });
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao buscar entidades' });
   }
 };
 
+/**
+ * PRIVATE BY ID
+ */
 export const getEntityPrivateController = async (req, res) => {
   try {
     const { id } = req.params;
@@ -70,49 +79,41 @@ export const getEntityPrivateController = async (req, res) => {
       return res.status(404).json({ error: 'Registro não encontrado' });
     }
 
-    res.json(entity);
-
+    return res.json(entity);
   } catch (err) {
-    res.status(500).json({ error: 'Erro ao buscar registro' });
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao buscar registro' });
   }
 };
 
-
-// UPDATE (abrigo)
+/**
+ * UPDATE
+ */
 export const updateEntityController = async (req, res) => {
   try {
     const { id } = req.params;
 
     const updated = await updateEntity(id, req.body, req.user.id);
 
-    res.json(updated);
-
+    return res.json(updated);
   } catch (err) {
+    console.error(err);
 
-    if (err.message === 'EXIT_REASON_REQUIRED') {
-      return res.status(400).json({
-        error: 'Motivo é obrigatório ao finalizar atendimento'
+    const errors = {
+      EXIT_REASON_REQUIRED: 400,
+      CANNOT_REVERT_STATUS: 400,
+      INVALID_STATUS: 400,
+      NOT_FOUND: 404
+    };
+
+    if (errors[err.message]) {
+      return res.status(errors[err.message]).json({
+        error: err.message
       });
     }
 
-    if (err.message === 'CANNOT_REVERT_STATUS') {
-      return res.status(400).json({
-        error: 'Não é possível alterar status após saída'
-      });
-    }
-
-    if (err.message === 'INVALID_STATUS') {
-      return res.status(400).json({
-        error: 'Status inválido'
-      });
-    }
-
-    if (err.message === 'NOT_FOUND') {
-      return res.status(404).json({
-        error: 'Registro não encontrado'
-      });
-    }
-
-    res.status(500).json({ error: 'Erro ao atualizar registro' });
+    return res.status(500).json({
+      error: 'Erro ao atualizar registro'
+    });
   }
 };

@@ -1,11 +1,17 @@
 import db from '../database/db.js';
 
+/**
+ * CREATE ENTITY
+ * Status padrão SEMPRE controlado pelo backend
+ */
 export const createEntity = async (data, shelterId) => {
   const result = await db.query(
-    `INSERT INTO registered_entities
+    `
+    INSERT INTO registered_entities
     (type, name, birth_date, estimated_age, species, breed, description, photo_url, allow_public_photo, status, shelter_id)
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-    RETURNING *`,
+    RETURNING *
+    `,
     [
       data.type,
       data.name,
@@ -16,7 +22,7 @@ export const createEntity = async (data, shelterId) => {
       data.description,
       data.photo_url,
       data.allow_public_photo,
-      data.status,
+      data.status ?? 'in_shelter', // 🔥 default seguro
       shelterId
     ]
   );
@@ -24,14 +30,11 @@ export const createEntity = async (data, shelterId) => {
   return result.rows[0];
 };
 
-
-// Busca permitida ao público e ao abrigo, revelando apenas algumas informações como nome, idade estimada, espécie (caso de animais) e descrição física, caso o status esteja "looking_for_family", que
-//são entes desaparecidos, como crianças, idosos e animais estão esperando pela família. 
-
-// Essa é a lista geral para o público
-export const searchEntitiesPublic = async (filters) => {
-
-  console.log("FILTERS RECEBIDOS:", filters);
+/**
+ * PUBLIC SEARCH
+ * Apenas pessoas em busca da família
+ */
+export const searchEntitiesPublic = async (filters = {}) => {
   const {
     name,
     estimated_age,
@@ -53,6 +56,7 @@ export const searchEntitiesPublic = async (filters) => {
       AND ($2::int IS NULL OR estimated_age = $2)
       AND ($3::text IS NULL OR $3 = '' OR species ILIKE '%' || $3 || '%')
       AND ($4::text IS NULL OR $4 = '' OR description ILIKE '%' || $4 || '%')
+    ORDER BY created_at DESC
   `;
 
   const result = await db.query(query, [
@@ -61,12 +65,13 @@ export const searchEntitiesPublic = async (filters) => {
     species ?? null,
     description ?? null
   ]);
-console.log("RESULTADO:", result.rows);
+
   return result.rows;
 };
 
-
-// Esse é o GET público de apenas a pessoa escolhida para ver os dados
+/**
+ * PUBLIC BY ID
+ */
 export const getEntityPublicById = async (id) => {
   const result = await db.query(
     `
@@ -77,7 +82,6 @@ export const getEntityPublicById = async (id) => {
       species,
       description,
       status
-
     FROM registered_entities
     WHERE id = $1
     `,
@@ -87,8 +91,9 @@ export const getEntityPublicById = async (id) => {
   return result.rows[0];
 };
 
-
-// Esses são o GETS que o abrigo recebe quando está logado, exibindo todos os dados das pessoas que estão abrigadas nele.
+/**
+ * SHELTER LIST
+ */
 export const getEntitiesByShelter = async (shelterId) => {
   const result = await db.query(
     `
@@ -103,6 +108,9 @@ export const getEntitiesByShelter = async (shelterId) => {
   return result.rows;
 };
 
+/**
+ * PRIVATE BY ID
+ */
 export const getEntityPrivateById = async (id, shelterId) => {
   const result = await db.query(
     `
@@ -116,8 +124,9 @@ export const getEntityPrivateById = async (id, shelterId) => {
   return result.rows[0];
 };
 
-
-// Todas as pessoas ou animais que foram abrigados ficarão com registro no sistema, por isso há somente uma atualização em vez de também ter DELETE.
+/**
+ * UPDATE ENTITY
+ */
 export const updateEntity = async (id, data, shelterId) => {
   const result = await db.query(
     `
@@ -143,7 +152,6 @@ export const updateEntity = async (id, data, shelterId) => {
     exit_reason = entity.exit_reason
   } = data;
 
-  // STATUS POSSÍVEIS
   const allowedStatus = [
     'in_shelter',
     'looking_for_family',
@@ -155,7 +163,6 @@ export const updateEntity = async (id, data, shelterId) => {
     throw new Error('INVALID_STATUS');
   }
 
-  // REGRA PRINCIPAL: saída exige motivo
   if (
     (status === 'reunited' || status === 'released') &&
     (!exit_reason || exit_reason.trim() === '')
@@ -163,7 +170,6 @@ export const updateEntity = async (id, data, shelterId) => {
     throw new Error('EXIT_REASON_REQUIRED');
   }
 
-  // Evitar inconsistência: não voltar depois de sair. Se sair, precisa de um novo cadastro, assim como checkins de hospitais.
   if (
     (entity.status === 'reunited' || entity.status === 'released') &&
     status !== entity.status
