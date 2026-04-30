@@ -3,8 +3,8 @@ import db from '../database/db.js';
 export const createEntity = async (data, shelterId) => {
   const result = await db.query(
     `INSERT INTO registered_entities
-    (type, name, birth_date, estimated_age, species, description, photo_url, allow_public_photo, status, shelter_id)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+    (type, name, birth_date, estimated_age, species, breed, description, photo_url, allow_public_photo, status, shelter_id)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
     RETURNING *`,
     [
       data.type,
@@ -12,6 +12,7 @@ export const createEntity = async (data, shelterId) => {
       data.birth_date,
       data.estimated_age,
       data.species,
+      data.breed,
       data.description,
       data.photo_url,
       data.allow_public_photo,
