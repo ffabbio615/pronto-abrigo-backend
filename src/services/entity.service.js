@@ -45,20 +45,19 @@ export const searchEntitiesPublic = async (filters) => {
       species,
       description,
       status
-
     FROM registered_entities
     WHERE status = 'looking_for_family'
-    AND ($1::text IS NULL OR name ILIKE '%' || $1 || '%')
-    AND ($2::int IS NULL OR estimated_age = $2)
-    AND ($3::text IS NULL OR species ILIKE '%' || $3 || '%')
-    AND ($4::text IS NULL OR description ILIKE '%' || $4 || '%')
+      AND ($1::text IS NULL OR $1 = '' OR name ILIKE '%' || $1 || '%')
+      AND ($2::int IS NULL OR estimated_age = $2)
+      AND ($3::text IS NULL OR $3 = '' OR species ILIKE '%' || $3 || '%')
+      AND ($4::text IS NULL OR $4 = '' OR description ILIKE '%' || $4 || '%')
   `;
 
   const result = await db.query(query, [
-    name || null,
-    estimated_age || null,
-    species || null,
-    description || null
+    name ?? null,
+    estimated_age ?? null,
+    species ?? null,
+    description ?? null
   ]);
 
   return result.rows;
