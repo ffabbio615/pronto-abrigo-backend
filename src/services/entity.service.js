@@ -36,7 +36,7 @@ export const createEntity = async (data, shelterId) => {
  */
 export const searchEntitiesPublic = async () => {
 
-  const query = `
+  const result = await db.query(`
     SELECT 
       id,
       shelter_id,
@@ -46,7 +46,7 @@ export const searchEntitiesPublic = async () => {
       species,
       breed,
       description,
-      status
+      status,
       
     CASE
       WHEN allow_public_photo = true THEN photo_url
@@ -56,7 +56,7 @@ export const searchEntitiesPublic = async () => {
     FROM registered_entities
     WHERE status = 'looking_for_family'
     ORDER BY created_at DESC
-  `;
+  `);
 
   return result.rows;
 };
