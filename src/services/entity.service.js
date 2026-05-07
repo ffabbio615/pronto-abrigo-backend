@@ -47,6 +47,7 @@ export const searchEntitiesPublic = async () => {
       breed,
       description,
       status,
+      created_at,
       
     CASE
       WHEN allow_public_photo = true THEN photo_url
