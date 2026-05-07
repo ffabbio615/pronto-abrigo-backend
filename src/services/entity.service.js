@@ -34,7 +34,7 @@ export const createEntity = async (data, shelterId) => {
  * PUBLIC SEARCH
  * Apenas pessoas em busca da família
  */
-export const searchEntitiesPublic = async (filters = {}) => {
+export const searchEntitiesPublic = async () => {
 
   const query = `
     SELECT 

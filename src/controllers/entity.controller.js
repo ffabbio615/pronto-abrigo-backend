@@ -1,7 +1,6 @@
 import {
   createEntity,
   searchEntitiesPublic,
-  getEntityPublicById,
   getEntitiesByShelter,
   getEntityPrivateById,
   updateEntity
