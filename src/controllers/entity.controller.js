@@ -34,26 +34,6 @@ export const searchEntitiesController = async (req, res) => {
 };
 
 /**
- * PUBLIC BY ID
- */
-export const getEntityPublicController = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const entity = await getEntityPublicById(id);
-
-    if (!entity) {
-      return res.status(404).json({ error: 'Registro não encontrado' });
-    }
-
-    return res.json(entity);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Erro ao buscar registro' });
-  }
-};
-
-/**
  * SHELTER LIST
  */
 export const getEntitiesByShelterController = async (req, res) => {

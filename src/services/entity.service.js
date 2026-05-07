@@ -22,7 +22,7 @@ export const createEntity = async (data, shelterId) => {
       data.description,
       data.photo_url,
       data.allow_public_photo,
-      data.status ?? 'in_shelter', // 🔥 default seguro
+      data.status ?? 'in_shelter',
       shelterId
     ]
   );
@@ -35,60 +35,30 @@ export const createEntity = async (data, shelterId) => {
  * Apenas pessoas em busca da família
  */
 export const searchEntitiesPublic = async (filters = {}) => {
-  const {
-    name,
-    estimated_age,
-    species,
-    description
-  } = filters;
 
   const query = `
     SELECT 
       id,
+      shelter_id,
+      type,
       name,
       estimated_age,
       species,
+      breed,
       description,
       status
+      
+    CASE
+      WHEN allow_public_photo = true THEN photo_url
+      ELSE NULL
+    END AS photo_url
+
     FROM registered_entities
     WHERE status = 'looking_for_family'
-      AND ($1::text IS NULL OR $1 = '' OR name ILIKE '%' || $1 || '%')
-      AND ($2::int IS NULL OR estimated_age = $2)
-      AND ($3::text IS NULL OR $3 = '' OR species ILIKE '%' || $3 || '%')
-      AND ($4::text IS NULL OR $4 = '' OR description ILIKE '%' || $4 || '%')
     ORDER BY created_at DESC
   `;
 
-  const result = await db.query(query, [
-    name ?? null,
-    estimated_age ?? null,
-    species ?? null,
-    description ?? null
-  ]);
-
   return result.rows;
-};
-
-/**
- * PUBLIC BY ID
- */
-export const getEntityPublicById = async (id) => {
-  const result = await db.query(
-    `
-    SELECT 
-      id,
-      name,
-      estimated_age,
-      species,
-      description,
-      status
-    FROM registered_entities
-    WHERE id = $1
-    `,
-    [id]
-  );
-
-  return result.rows[0];
 };
 
 /**
