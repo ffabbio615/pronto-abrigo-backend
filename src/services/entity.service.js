@@ -1,10 +1,22 @@
 import db from '../database/db.js';
 
+const occupancyStatuses = [
+  'in_shelter',
+  'looking_for_family'
+];
+
+const affectsOccupancy = (status) => {
+  return occupancyStatuses.includes(status);
+};
+
 /**
  * CREATE ENTITY
  * Status padrão SEMPRE controlado pelo backend
  */
 export const createEntity = async (data, shelterId) => {
+
+  const status = data.status ?? 'in_shelter';
+
   const result = await db.query(
     `
     INSERT INTO registered_entities
@@ -22,10 +34,22 @@ export const createEntity = async (data, shelterId) => {
       data.description,
       data.photo_url,
       data.allow_public_photo,
-      data.status ?? 'in_shelter',
+      status,
       shelterId
     ]
   );
+
+  // SOMA ocupação
+  if (affectsOccupancy(status)) {
+    await db.query(
+      `
+      UPDATE shelters
+      SET current_occupancy = current_occupancy + 1
+      WHERE id = $1
+      `,
+      [shelterId]
+    );
+  }
 
   return result.rows[0];
 };
@@ -116,6 +140,7 @@ export const updateEntity = async (id, data, shelterId) => {
     birth_date = entity.birth_date,
     estimated_age = entity.estimated_age,
     species = entity.species,
+    breed = entity.breed,
     description = entity.description,
     photo_url = entity.photo_url,
     allow_public_photo = entity.allow_public_photo,
@@ -134,19 +159,16 @@ export const updateEntity = async (id, data, shelterId) => {
     throw new Error('INVALID_STATUS');
   }
 
-  if (
-    (status === 'reunited' || status === 'released') &&
-    (!exit_reason || exit_reason.trim() === '')
-  ) {
+  if ((status === 'reunited' || status === 'released') && (!exit_reason || exit_reason.trim() === '')) {
     throw new Error('EXIT_REASON_REQUIRED');
   }
 
-  if (
-    (entity.status === 'reunited' || entity.status === 'released') &&
-    status !== entity.status
-  ) {
+  if ((entity.status === 'reunited' || entity.status === 'released') && status !== entity.status) {
     throw new Error('CANNOT_REVERT_STATUS');
   }
+
+  const oldOccupancy = affectsOccupancy(entity.status);
+  const newOccupancy = affectsOccupancy(status);
 
   const updated = await db.query(
     `
@@ -156,12 +178,13 @@ export const updateEntity = async (id, data, shelterId) => {
       birth_date = $2,
       estimated_age = $3,
       species = $4,
-      description = $5,
-      photo_url = $6,
-      allow_public_photo = $7,
-      status = $8,
-      exit_reason = $9
-    WHERE id = $10 AND shelter_id = $11
+      breed = $5,
+      description = $6,
+      photo_url = $7,
+      allow_public_photo = $8,
+      status = $9,
+      exit_reason = $10
+    WHERE id = $11 AND shelter_id = $12
     RETURNING *
     `,
     [
@@ -169,6 +192,7 @@ export const updateEntity = async (id, data, shelterId) => {
       birth_date,
       estimated_age,
       species,
+      breed,
       description,
       photo_url,
       allow_public_photo,
@@ -178,6 +202,30 @@ export const updateEntity = async (id, data, shelterId) => {
       shelterId
     ]
   );
+
+  // REMOVE ocupação
+  if (oldOccupancy && !newOccupancy) {
+    await db.query(
+      `
+      UPDATE shelters
+      SET current_occupancy = current_occupancy - 1
+      WHERE id = $1
+      `,
+      [shelterId]
+    );
+  }
+
+  // ADICIONA ocupação
+  if (!oldOccupancy && newOccupancy) {
+    await db.query(
+      `
+      UPDATE shelters
+      SET current_occupancy = current_occupancy + 1
+      WHERE id = $1
+      `,
+      [shelterId]
+    );
+  }
 
   return updated.rows[0];
 };
