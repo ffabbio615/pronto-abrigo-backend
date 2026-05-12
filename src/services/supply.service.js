@@ -27,6 +27,7 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
   const result = await db.query(
     `
     SELECT 
+      s.id as supply_id,
       s.name,
       s.current_quantity,
       s.min_quantity,
@@ -68,13 +69,14 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
   for (const item of result.rows) {
     if (!grouped[item.shelter_id]) {
       grouped[item.shelter_id] = {
-        shelter: item.shelter_name,
+        shelter_name: item.shelter_name,
         distance: item.distance,
         items: []
       };
     }
 
     grouped[item.shelter_id].items.push({
+      id: item.supply_id,
       name: item.name,
       current: item.current_quantity,
       needed: item.min_quantity
