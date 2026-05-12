@@ -31,6 +31,7 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
       s.name,
       s.current_quantity,
       s.min_quantity,
+      s.max_quantity,
       sh.name as shelter_name,
       sh.id as shelter_id,
 
@@ -79,7 +80,8 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
       id: item.supply_id,
       name: item.name,
       current: item.current_quantity,
-      needed: item.min_quantity
+      needed: item.min_quantity,
+      ideal: item.max_quantity
     });
   }
 
