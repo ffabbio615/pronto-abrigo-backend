@@ -43,7 +43,7 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
           sin(radians($1)) *
           sin(radians(sh.latitude))
         )
-      ) AS distance
+      )::float AS distance
 
     FROM supplies s
     JOIN shelters sh ON sh.id = s.shelter_id
@@ -87,7 +87,9 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
     });
   }
 
-  return Object.values(grouped);
+  return Object.values(grouped).sort(
+    (a, b) => a.distance - b.distance
+  );
 };
 
 export const updateSupply = async (id, data, shelterId) => {
