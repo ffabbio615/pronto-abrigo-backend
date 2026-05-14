@@ -49,7 +49,7 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
     JOIN shelters sh ON sh.id = s.shelter_id
 
     WHERE 
-      s.current_quantity < s.min_quantity
+      s.current_quantity < s.max_quantity
       AND (
         6371 * acos(
           cos(radians($1)) *
