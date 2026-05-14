@@ -92,6 +92,8 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
 
   WHERE 
     s.current_quantity < s.max_quantity
+    AND sh.latitude IS NOT NULL
+    AND sh.longitude IS NOT NULL
 
   ORDER BY distance ASC
   `,
