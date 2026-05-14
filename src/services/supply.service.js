@@ -24,46 +24,79 @@ export const getSupplies = async (shelterId) => {
 };
 
 export const getNearbySuppliesService = async (lat, lng, radius) => {
+  // const result = await db.query(
+  //   `
+  //   SELECT 
+  //     s.id as supply_id,
+  //     s.name,
+  //     s.current_quantity,
+  //     s.min_quantity,
+  //     s.max_quantity,
+  //     sh.name as shelter_name,
+  //     sh.id as shelter_id,
+
+  //     (
+  //       6371 * acos(
+  //         cos(radians($1)) *
+  //         cos(radians(sh.latitude)) *
+  //         cos(radians(sh.longitude) - radians($2)) +
+  //         sin(radians($1)) *
+  //         sin(radians(sh.latitude))
+  //       )
+  //     ) AS distance
+
+  //   FROM supplies s
+  //   JOIN shelters sh ON sh.id = s.shelter_id
+
+  //   WHERE 
+  //     s.current_quantity < s.max_quantity
+  //     AND (
+  //       6371 * acos(
+  //         cos(radians($1)) *
+  //         cos(radians(sh.latitude)) *
+  //         cos(radians(sh.longitude) - radians($2)) +
+  //         sin(radians($1)) *
+  //         sin(radians(sh.latitude))
+  //       )
+  //     ) <= $3
+
+  //   ORDER BY distance ASC
+  //   `,
+  //   [lat, lng, radius]
+  // );
+
+
   const result = await db.query(
-    `
-    SELECT 
-      s.id as supply_id,
-      s.name,
-      s.current_quantity,
-      s.min_quantity,
-      s.max_quantity,
-      sh.name as shelter_name,
-      sh.id as shelter_id,
+  `
+  SELECT 
+    s.id as supply_id,
+    s.name,
+    s.current_quantity,
+    s.min_quantity,
+    s.max_quantity,
+    sh.name as shelter_name,
+    sh.id as shelter_id,
 
-      (
-        6371 * acos(
-          cos(radians($1)) *
-          cos(radians(sh.latitude)) *
-          cos(radians(sh.longitude) - radians($2)) +
-          sin(radians($1)) *
-          sin(radians(sh.latitude))
-        )
-      ) AS distance
+    (
+      6371 * acos(
+        cos(radians($1)) *
+        cos(radians(sh.latitude)) *
+        cos(radians(sh.longitude) - radians($2)) +
+        sin(radians($1)) *
+        sin(radians(sh.latitude))
+      )
+    ) AS distance
 
-    FROM supplies s
-    JOIN shelters sh ON sh.id = s.shelter_id
+  FROM supplies s
+  JOIN shelters sh ON sh.id = s.shelter_id
 
-    WHERE 
-      s.current_quantity < s.max_quantity
-      AND (
-        6371 * acos(
-          cos(radians($1)) *
-          cos(radians(sh.latitude)) *
-          cos(radians(sh.longitude) - radians($2)) +
-          sin(radians($1)) *
-          sin(radians(sh.latitude))
-        )
-      ) <= $3
+  WHERE 
+    s.current_quantity < s.max_quantity
 
-    ORDER BY distance ASC
-    `,
-    [lat, lng, radius]
-  );
+  ORDER BY distance ASC
+  `,
+  [lat, lng]
+);
 
   const grouped = {};
 
