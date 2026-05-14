@@ -90,8 +90,14 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
   FROM supplies s
   JOIN shelters sh ON sh.id = s.shelter_id
 
+<<<<<<< HEAD
   WHERE 
     s.current_quantity < s.max_quantity
+=======
+    WHERE 
+      s.current_quantity < s.max_quantity
+
+>>>>>>> 877f4fe79b06e80b2ede83d564a5b680c8996f77
 
   ORDER BY distance ASC
   `,
