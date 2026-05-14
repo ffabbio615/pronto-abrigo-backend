@@ -50,15 +50,7 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
 
     WHERE 
       s.current_quantity < s.max_quantity
-      AND (
-        6371 * acos(
-          cos(radians($1)) *
-          cos(radians(sh.latitude)) *
-          cos(radians(sh.longitude) - radians($2)) +
-          sin(radians($1)) *
-          sin(radians(sh.latitude))
-        )
-      ) <= $3
+
 
     ORDER BY distance ASC
     `,
