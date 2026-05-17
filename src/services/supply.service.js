@@ -33,6 +33,7 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
       s.min_quantity,
       s.max_quantity,
       sh.name as shelter_name,
+      sh.address as shelter_address,
       sh.id as shelter_id,
 
       (
@@ -73,6 +74,7 @@ export const getNearbySuppliesService = async (lat, lng, radius) => {
     if (!grouped[item.shelter_id]) {
       grouped[item.shelter_id] = {
         shelter_name: item.shelter_name,
+        shelter_address: item.shelter_address,
         distance: item.distance,
         items: []
       };
