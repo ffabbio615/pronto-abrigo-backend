@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { createShelter, findShelterByEmail, getAllShelters, getShelterById, updateShelter } from '../services/shelter.service.js';
+import { createShelter, findShelterByEmail, getAllShelters, getNearbyShelters, getShelterById, updateShelter } from '../services/shelter.service.js';
 
 export const registerShelter = async (req, res) => {
   try {
@@ -79,6 +79,32 @@ export const listShelters = async (req, res) => {
     res.json(shelters);
   } catch (err) {
     res.status(500).json({ error: 'Erro ao buscar abrigos' });
+  }
+};
+
+export const getNearbySheltersController = async (req, res) => {
+  const { lat, lng, radius = 20 } = req.query;
+
+  if (!lat || !lng) {
+    return res.status(400).json({
+      error: "Latitude e longitude são obrigatórias"
+    });
+  }
+
+  try {
+    const shelters = await getNearbyShelters(
+      Number(lat),
+      Number(lng),
+      Number(radius)
+    );
+
+    res.json(shelters);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: "Erro ao buscar abrigos"
+    });
   }
 };
 

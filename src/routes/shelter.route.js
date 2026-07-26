@@ -1,5 +1,5 @@
 import express from 'express';
-import { loginShelter, registerShelter, updateShelterController, listShelters, getShelter, getMyShelter } from '../controllers/shelter.controller.js';
+import { loginShelter, registerShelter, updateShelterController, listShelters, getNearbySheltersController, getShelter, getMyShelter } from '../controllers/shelter.controller.js';
 import { auth } from '../middlewares/auth.js';
 import { validate } from '../middlewares/validate.js';
 import { registerShelterSchema, updateShelterSchema } from '../validators/shelterValidator.js';
@@ -10,6 +10,7 @@ const router = express.Router();
 router.get('/me', auth, getMyShelter);
 
 // público
+router.get('/nearby', getNearbySheltersController);
 router.get('/', listShelters);
 router.get('/:id', getShelter);
 

@@ -60,6 +60,55 @@ export const getAllShelters = async () => {
   return result.rows;
 };
 
+export const getNearbyShelters = async (lat, lng, radius = 20) => {
+  const query = `
+    SELECT
+      id,
+      name,
+      nickname,
+      description,
+      address,
+      latitude,
+      longitude,
+      type,
+      capacity,
+      current_occupancy,
+      photo_url,
+
+      CASE
+        WHEN current_occupancy >= capacity THEN 'full'
+        ELSE status
+      END AS status,
+
+      (
+        6371 * acos(
+          cos(radians($1))
+          * cos(radians(latitude))
+          * cos(radians(longitude) - radians($2))
+          + sin(radians($1))
+          * sin(radians(latitude))
+        )
+      ) AS distance
+
+    FROM shelters
+
+    WHERE (
+      6371 * acos(
+        cos(radians($1))
+        * cos(radians(latitude))
+        * cos(radians(longitude) - radians($2))
+        + sin(radians($1))
+        * sin(radians(latitude))
+      )
+    ) <= $3
+
+    ORDER BY distance ASC;
+  `;
+
+  const result = await db.query(query, [lat, lng, radius]);
+
+  return result.rows;
+};
 
 export const getShelterById = async (id) => {
   const result = await db.query(
