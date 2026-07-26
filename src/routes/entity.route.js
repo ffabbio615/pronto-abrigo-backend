@@ -1,5 +1,5 @@
 import express from 'express';
-import { createEntityController, searchEntitiesController, getEntitiesByShelterController, getEntityPrivateController, updateEntityController } from '../controllers/entity.controller.js';
+import { createEntityController, searchEntitiesController, searchNearbyEntitiesController, getEntitiesByShelterController, getEntityPrivateController, updateEntityController } from '../controllers/entity.controller.js';
 import { auth } from '../middlewares/auth.js';
 
 const router = express.Router();
@@ -13,6 +13,7 @@ router.put('/:id', auth, updateEntityController);
 
 
 // PÚBLICO
+router.get('/nearby', searchNearbyEntitiesController);
 router.get('/', searchEntitiesController);
 
 export default router;

@@ -1,6 +1,7 @@
 import {
   createEntity,
   searchEntitiesPublic,
+  searchNearbyEntities,
   getEntitiesByShelter,
   getEntityPrivateById,
   updateEntity
@@ -29,6 +30,36 @@ export const searchEntitiesController = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Erro ao buscar registros' });
+  }
+};
+
+/**
+ * SHELTER LIST LIMITED TO 100KM
+ */
+export const searchNearbyEntitiesController = async (req, res) => {
+  const { lat, lng, radius = 100 } = req.query;
+
+  if (!lat || !lng) {
+    return res.status(400).json({
+      error: "Latitude e longitude são obrigatórias"
+    });
+  }
+
+  try {
+    const entities = await searchNearbyEntities(
+      Number(lat),
+      Number(lng),
+      Number(radius)
+    );
+
+    return res.json(entities);
+
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      error: "Erro ao buscar entidades"
+    });
   }
 };
 

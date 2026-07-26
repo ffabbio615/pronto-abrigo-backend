@@ -86,6 +86,65 @@ export const searchEntitiesPublic = async () => {
   return result.rows;
 };
 
+/*
+ * Apenas pessoas em busca da família que estejam num raio de 100km
+ */
+export const searchNearbyEntities = async (lat, lng, radius = 100) => {
+  const result = await db.query(
+    `
+    SELECT
+      e.id,
+      e.shelter_id,
+      e.type,
+      e.name,
+      e.estimated_age,
+      e.species,
+      e.breed,
+      e.description,
+      e.status,
+      e.created_at,
+
+      CASE
+        WHEN e.allow_public_photo = true THEN e.photo_url
+        ELSE NULL
+      END AS photo_url,
+
+      (
+        6371 * acos(
+          cos(radians($1))
+          * cos(radians(s.latitude))
+          * cos(radians(s.longitude) - radians($2))
+          + sin(radians($1))
+          * sin(radians(s.latitude))
+        )
+      ) AS distance
+
+    FROM registered_entities e
+
+    INNER JOIN shelters s
+      ON s.id = e.shelter_id
+
+    WHERE
+      e.status = 'looking_for_family'
+
+      AND (
+        6371 * acos(
+          cos(radians($1))
+          * cos(radians(s.latitude))
+          * cos(radians(s.longitude) - radians($2))
+          + sin(radians($1))
+          * sin(radians(s.latitude))
+        )
+      ) <= $3
+
+    ORDER BY distance ASC, e.created_at DESC
+    `,
+    [lat, lng, radius]
+  );
+
+  return result.rows;
+};
+
 /**
  * SHELTER LIST
  */
