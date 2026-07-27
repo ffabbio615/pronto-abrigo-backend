@@ -83,8 +83,6 @@ export const listShelters = async (req, res) => {
 };
 
 export const getNearbySheltersController = async (req, res) => {
-  console.log(">>> CONTROLLER NEARBY");
-console.log(req.query);
   const { lat, lng, radius = 20 } = req.query;
 
   if (!lat || !lng) {

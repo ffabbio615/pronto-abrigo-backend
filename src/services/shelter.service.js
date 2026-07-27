@@ -107,17 +107,6 @@ export const getNearbyShelters = async (lat, lng, radius = 20) => {
 
   const result = await db.query(query, [lat, lng, radius]);
 
-  console.log("LAT:", lat);
-console.log("LNG:", lng);
-console.log("RADIUS:", radius);
-
-console.table(
-  result.rows.map(r => ({
-    name: r.name,
-    distance: r.distance
-  }))
-);
-
   return result.rows;
 };
 
